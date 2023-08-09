@@ -1,0 +1,60 @@
+from tkinter import *
+import KanBankasiTakip as kt
+
+window= Tk()
+window.geometry("530x500+300+150")
+
+window.title("Kan Bankası Takip Arayüzü")
+window.configure(bg="#E0A96D")
+
+window.resizable(height=False, width=False)
+
+def Cikis():
+    window.destroy()
+
+frame1=Frame(window,width=200,height=100,bg="#DDC3A5",highlightbackground="#201E20",highlightthickness=3)
+frame2=Frame(window,width=200,height=100,bg="#DDC3A5",highlightbackground="#201E20",highlightthickness=3)
+frame3=Frame(window,width=200,height=100,bg="#DDC3A5",highlightbackground="#201E20",highlightthickness=3)
+frame4=Frame(window,width=200,height=100,bg="#DDC3A5",highlightbackground="#201E20",highlightthickness=3)
+frame5=Frame(window,width=200,height=100,bg="#DDC3A5",highlightbackground="#201E20",highlightthickness=3)
+
+frame1.place(x=30,y=110)
+frame2.place(x=30,y=250)
+frame3.place(x=300,y=110)
+frame4.place(x=300,y=250)
+frame5.place(x=180,y=380)
+
+baslik=Label(window,text="Kan Bankası Otomasyonuna Hoş Geldiniz",
+             font=("Arial 15 bold italic"),bg="#DDC3A5")
+baslik.pack(pady=30)
+
+
+buton_kanbagisiyap=Button(frame1, text="KAN BAGISI YAP",
+                          font="Times 15 bold italic",
+                          pady=26,padx=18,bg="#DDC3A5",
+                          command=kt.Kayit)
+buton_kayitliverilerigetir=Button(frame2, text="KAYITLI VERILERI GETIR",wraplength=200,
+                          font="Times 15 bold italic",
+                          pady=15,padx=10,bg="#DDC3A5",
+                          command=kt.Kayitli_verileri_getir)
+buton_kayitliverilerisil=Button(frame3, text="KAYITLI VERILERI SIL",wraplength=200,
+                          font="Times 15 bold italic",
+                          pady=15,padx=5,bg="#DDC3A5",
+                          command=kt.Kayitli_verileri_sil)
+buton_kanal=Button(frame4, text="BANKADAN KAN AL",wraplength=180,
+                          font="Times 15 bold italic",
+                          pady=15,padx=18,bg="#DDC3A5",
+                          command=kt.Kan_al)
+buton_cikisyap=Button(frame5, text="Cikis Yap",
+                          font="Times 15 bold italic",
+                          pady=26,padx=40,bg="#DDC3A5",
+                          command=Cikis)
+
+buton_kanbagisiyap.pack()
+buton_kayitliverilerigetir.pack()
+buton_kayitliverilerisil.pack()
+buton_kanal.pack()
+buton_cikisyap.pack()
+
+
+window.mainloop()
