@@ -1,0 +1,306 @@
+
+
+# Kayıt() fonksiyonu kullanıcıdan alınan bilgileri veri adında bir dict de tutar. Daha sonra Sisteme_kayıt_et()
+# fonksiyonu ile aldığı parametredeki verileri açtığı kan_bankasi_takip.txt adlı dosyaya kaydediyor ve Havuz()
+# fonksiyonu ile bağışlanacak kan türüne göre txt uzantılı bir dosya açar (örnek: A+.txt) ve serum miktarını
+# kaydeder.
+def Kayit():
+    veri={
+        "isim":input("Isim:"),
+        "soyisim":input("Soy Isim:"),
+        "yas":input("Yas:"),
+        "cinsiyet":input("Cinsiyet:"),
+        "kan_grubu":input("Kan Grubu:"),
+        "bagislanacak_serum_miktari":input("Bagislanacak Serum Miktari:")
+    }
+    Sisteme_kayit_et(veri)
+    Havuz(veri)
+
+def Sisteme_kayit_et(veri):
+    with open("kan_bankasi_takip.txt","a",encoding="utf-8") as dosya:
+        dosya.write(f"{veri['isim']},{veri['soyisim']},{veri['yas']},"
+                    f"{veri['cinsiyet']},{veri['kan_grubu']}"
+                    f",{veri['bagislanacak_serum_miktari']},\n")
+
+
+# Kayıtlı_verileri_getir() fonksiyonu kan_bankasi_takip.txt dosyasını okuyarak açar ve her satırı liste (list) olarak
+# bir veri adlı değişkene atar. daha sonra for döngüsü ile veri adlı listenin içindeki bilgilere teker teker ulaşılarak
+# ekrana yazdırılır. Not: ekrana yazdırırken verilerin başına kayıt no eklenir.
+def Kayitli_verileri_getir():
+    with open("kan_bankasi_takip.txt","r",encoding="utf-8") as dosya:
+        for i, satir in enumerate(dosya,start=1):
+            veri =satir.strip().split(",")
+            print(f"{i}.Kayıt")
+            print(f"İsim:{veri[0]}")
+            print(f"Soy İsim:{veri[1]}")
+            print(f"Yaş:{veri[2]}")
+            print(f"Cinsiyet:{veri[3]}")
+            print(f"Kan Grubu:{veri[4]}")
+            print(f"Bagislanan Serum Miktari:{veri[5]}")
+            print("--------------------------------------")
+
+
+# Kayitli_verileri_sil() fonksiyonu kayıt numarasını girdiğimiz kaydın silinmesini sağlar.
+def Kayitli_verileri_sil():
+    global kayit_no
+    kayit_no=int(input("silmek istediğiniz kaydın numarasını giriniz:"))
+    Havuzsil()
+    with open("kan_bankasi_takip.txt","r",encoding="utf-8") as dosya:
+        veriler=dosya.readlines()
+        # kayit_no.isdigit() and
+    if 1<=int(kayit_no) <= len(veriler):
+        # print(veriler[int(kayit_no)-1])
+        del veriler[int(kayit_no)-1]
+        with open("kan_bankasi_takip.txt","w",encoding="utf-8") as dosya:
+            dosya.writelines(veriler)
+        print("Kayit basariyla silindi.")
+    else:
+        print("Girdiğiniz kayıt numarası bulunamadı")
+
+
+
+def Havuz(veri):
+    if veri["kan_grubu"] == "A+":
+        with open("A+.txt","a",encoding="utf-8") as dosya:
+            dosya.write(f"{veri['bagislanacak_serum_miktari']}\n")
+    elif veri["kan_grubu"] == "A-":
+        with open("A-.txt","a",encoding="utf-8") as dosya:
+            dosya.write(f"{veri['bagislanacak_serum_miktari']}\n")
+    elif veri["kan_grubu"] == "B+":
+        with open("B+.txt","a",encoding="utf-8") as dosya:
+            dosya.write(f"{veri['bagislanacak_serum_miktari']}\n")
+    elif veri["kan_grubu"] == "B-":
+        with open("B-.txt","a",encoding="utf-8") as dosya:
+            dosya.write(f"{veri['bagislanacak_serum_miktari']}\n")
+    elif veri["kan_grubu"] == "AB+":
+        with open("AB+.txt","a",encoding="utf-8") as dosya:
+            dosya.write(f"{veri['bagislanacak_serum_miktari']}\n")
+    elif veri["kan_grubu"] == "AB-":
+        with open("AB-.txt","a",encoding="utf-8") as dosya:
+            dosya.write(f"{veri['bagislanacak_serum_miktari']}\n")
+    elif veri["kan_grubu"] == "0+":
+        with open("0+.txt","a",encoding="utf-8") as dosya:
+            dosya.write(f"{veri['bagislanacak_serum_miktari']}\n")
+    elif veri["kan_grubu"] == "0-":
+        with open("0-.txt","a",encoding="utf-8") as dosya:
+            dosya.write(f"{veri['bagislanacak_serum_miktari']}\n")
+
+# Sildiğimiz kaydın kan havuzundan eksilmesi için Havuz() fonksiyonu çağırılır.
+# Silinen kayıttaki kan türüne göre havuzdaki kan miktarını eksiltir.
+def Havuzsil():
+    toplam = 0
+    with open("kan_bankasi_takip.txt", "r", encoding="utf-8") as dosya:
+        satirlar = dosya.readlines()
+    bolumlu_satirlar = [satir.split(",") for satir in satirlar]
+    silinecek_sayi = int(bolumlu_satirlar[kayit_no-1][5])
+    if bolumlu_satirlar[kayit_no-1][4] == "A+":
+        with open("A+.txt", "r", encoding="utf-8") as dosyam:
+            for i in dosyam.readlines():
+                toplam += int(i)
+        with open("A+.txt", "w", encoding="utf-8") as dosy:
+            toplam -= silinecek_sayi
+            dosy.write(str(toplam))
+    elif bolumlu_satirlar[kayit_no-1][4] == "A-":
+        with open("A-.txt", "r", encoding="utf-8") as dosyam:
+            for i in dosyam.readlines():
+                toplam += int(i)
+        with open("A-.txt", "w", encoding="utf-8") as dosy:
+            toplam -= silinecek_sayi
+            dosy.write(str(toplam))
+    elif bolumlu_satirlar[kayit_no-1][4] == "B+":
+        with open("B+.txt", "r", encoding="utf-8") as dosyam:
+            for i in dosyam.readlines():
+                toplam += int(i)
+        with open("B+.txt", "w", encoding="utf-8") as dosy:
+            toplam -= silinecek_sayi
+            dosy.write(str(toplam))
+    elif bolumlu_satirlar[kayit_no-1][4] == "B-":
+        with open("B-.txt", "r", encoding="utf-8") as dosyam:
+            for i in dosyam.readlines():
+                toplam += int(i)
+        with open("B-.txt", "w", encoding="utf-8") as dosy:
+            toplam -= silinecek_sayi
+            dosy.write(str(toplam))
+    elif bolumlu_satirlar[kayit_no-1][4] == "AB+":
+        with open("AB+.txt", "r", encoding="utf-8") as dosyam:
+            for i in dosyam.readlines():
+                toplam += int(i)
+        with open("AB+.txt", "w", encoding="utf-8") as dosy:
+            toplam -= silinecek_sayi
+            dosy.write(str(toplam))
+    elif bolumlu_satirlar[kayit_no-1][4] == "AB-":
+        with open("AB-.txt", "r", encoding="utf-8") as dosyam:
+            for i in dosyam.readlines():
+                toplam += int(i)
+        with open("AB-.txt", "w", encoding="utf-8") as dosy:
+            toplam -= silinecek_sayi
+            dosy.write(str(toplam))
+    elif bolumlu_satirlar[kayit_no-1][4] == "0+":
+        with open("0+.txt", "r", encoding="utf-8") as dosyam:
+            for i in dosyam.readlines():
+                toplam += int(i)
+        with open("0+.txt", "w", encoding="utf-8") as dosy:
+            toplam -= silinecek_sayi
+            dosy.write(str(toplam))
+    elif bolumlu_satirlar[kayit_no-1][4] == "0-":
+        with open("0-.txt", "r", encoding="utf-8") as dosyam:
+            for i in dosyam.readlines():
+                toplam += int(i)
+        with open("0-.txt", "w", encoding="utf-8") as dosy:
+            toplam -= silinecek_sayi
+            dosy.write(str(toplam))
+    else:
+        print("bir sorun oldu")
+
+# Kan_al() fonksiyonu istenilen kan türü ve istenilen serum miktarını girdikden sonra girilen kan türünün dosyasını okur
+# ve stokda var ise talep edilen kanı ilgili kan türünün kan havuzdan eksiltir.
+def Kan_al():
+    istenen_kan_turu = input("Alınacak kan türünü giriniz:")
+    istenilen_kan_miktari=int(input("Alınacak kan miktarını giriniz"))
+    toplam=0
+
+    if istenen_kan_turu=="A+":
+        with open("A+.txt","r",encoding="utf-8") as dosya:
+            for i in dosya.readlines():
+                toplam += int(i)
+            print("toplam {} adet var ve siz {} adet istiyorsunuz ".format(toplam,istenilen_kan_miktari))
+            if istenilen_kan_miktari <= toplam:
+                print("Stoklarımızda istediğiniz kan miktarı mevcut. İşleminiz yapıldı.")
+                with open("A+.txt","w",encoding="utf-8") as dosya:
+                    toplam -= istenilen_kan_miktari
+                    dosya.write(f"{toplam}")
+            else:
+                print("Stoklarımızda istediğiniz kan miktarı mevcut değil. İşleminiz yapılamadı.")
+    elif istenen_kan_turu=="A-":
+        with open("A-.txt","r",encoding="utf-8") as dosya:
+            for i in dosya.readlines():
+                toplam += int(i)
+            print("toplam {} adet var ve siz {} adet istiyorsunuz ".format(toplam,istenilen_kan_miktari))
+            if istenilen_kan_miktari <= toplam:
+                print("Stoklarımızda istediğiniz kan miktarı mevcut. İşleminiz yapıldı.")
+                with open("A-.txt","w",encoding="utf-8") as dosya:
+                    toplam -= istenilen_kan_miktari
+                    dosya.write(f"{toplam}")
+            else:
+                print("Stoklarımızda istediğiniz kan miktarı mevcut değil. İşleminiz yapılamadı.")
+    elif istenen_kan_turu=="B+":
+        with open("B+.txt","r",encoding="utf-8") as dosya:
+            for i in dosya.readlines():
+                toplam += int(i)
+            print("toplam {} adet var ve siz {} adet istiyorsunuz ".format(toplam,istenilen_kan_miktari))
+            if istenilen_kan_miktari <= toplam:
+                with open("B+.txt","w",encoding="utf-8") as dosya:
+                    toplam -= istenilen_kan_miktari
+                    dosya.write(f"{toplam}")
+            else:
+                print("Stoklarımızda istediğiniz kan miktarı mevcut değil. İşleminiz yapılamadı.")
+    elif istenen_kan_turu=="B-":
+        with open("B-.txt","r",encoding="utf-8") as dosya:
+            for i in dosya.readlines():
+                toplam += int(i)
+            print("toplam {} adet var ve siz {} adet istiyorsunuz ".format(toplam,istenilen_kan_miktari))
+            if istenilen_kan_miktari <= toplam:
+                print("Stoklarımızda istediğiniz kan miktarı mevcut. İşleminiz yapıldı.")
+                with open("B-.txt","w",encoding="utf-8") as dosya:
+                    toplam -= istenilen_kan_miktari
+                    dosya.write(f"{toplam}")
+            else:
+                print("Stoklarımızda istediğiniz kan miktarı mevcut değil. İşleminiz yapılamadı.")
+    elif istenen_kan_turu=="AB+":
+        with open("AB+.txt","r",encoding="utf-8") as dosya:
+            for i in dosya.readlines():
+                toplam += int(i)
+            print("toplam {} adet var ve siz {} adet istiyorsunuz ".format(toplam,istenilen_kan_miktari))
+            if istenilen_kan_miktari <= toplam:
+                print("Stoklarımızda istediğiniz kan miktarı mevcut. İşleminiz yapıldı.")
+                with open("AB+.txt","w",encoding="utf-8") as dosya:
+                    toplam -= istenilen_kan_miktari
+                    dosya.write(f"{toplam}")
+            else:
+                print("Stoklarımızda istediğiniz kan miktarı mevcut değil. İşleminiz yapılamadı.")
+    elif istenen_kan_turu=="AB-":
+        with open("AB-.txt","r",encoding="utf-8") as dosya:
+            for i in dosya.readlines():
+                toplam += int(i)
+            print("toplam {} adet var ve siz {} adet istiyorsunuz ".format(toplam,istenilen_kan_miktari))
+            if istenilen_kan_miktari <= toplam:
+                print("Stoklarımızda istediğiniz kan miktarı mevcut. İşleminiz yapıldı.")
+                with open("AB-.txt","w",encoding="utf-8") as dosya:
+                    toplam -= istenilen_kan_miktari
+                    dosya.write(f"{toplam}")
+            else:
+                print("Stoklarımızda istediğiniz kan miktarı mevcut değil. İşleminiz yapılamadı.")
+    elif istenen_kan_turu=="0+":
+        with open("0+.txt","r",encoding="utf-8") as dosya:
+            for i in dosya.readlines():
+                toplam += int(i)
+            print("toplam {} adet var ve siz {} adet istiyorsunuz ".format(toplam,istenilen_kan_miktari))
+            if istenilen_kan_miktari <= toplam:
+                print("Stoklarımızda istediğiniz kan miktarı mevcut. İşleminiz yapıldı.")
+                with open("0+.txt","w",encoding="utf-8") as dosya:
+                    toplam -= istenilen_kan_miktari
+                    dosya.write(f"{toplam}")
+            else:
+                print("Stoklarımızda istediğiniz kan miktarı mevcut değil. İşleminiz yapılamadı.")
+    elif istenen_kan_turu=="0-":
+        with open("0-.txt","r",encoding="utf-8") as dosya:
+            for i in dosya.readlines():
+                toplam += int(i)
+            print("toplam {} adet var ve siz {} adet istiyorsunuz ".format(toplam,istenilen_kan_miktari))
+            if istenilen_kan_miktari <= toplam:
+                print("Stoklarımızda istediğiniz kan miktarı mevcut. İşleminiz yapıldı.")
+                with open("0-.txt","w",encoding="utf-8") as dosya:
+                    toplam -= istenilen_kan_miktari
+                    dosya.write(f"{toplam}")
+            else:
+                print("Stoklarımızda istediğiniz kan miktarı mevcut değil. İşleminiz yapılamadı.")
+    else:
+        print("Girdiğiniz kan türüyle eşleşen bir veri bulunamadı. Sistemden çıkış yapılıyor")
+
+
+
+#Bir arayüz kullanacaksanız, bu kısmın geri kalanını yorum satırından kaldırın.
+#If you are going to use an interface, remove the rest of this part from the comment line.
+
+
+# def Sorular():
+#     print("1- Kan Bağışı Yap")
+#     print("2- Kayıtlı Verileri Getir")
+#     print("3- Kayıtlı Bir Veriyi Sil")
+#     print("4- Sistemden Kan Al")
+#     print("0- Sistemden Çıkış Yap")
+#
+#
+# def Ana_ekran():
+#     print("Kan Bankası Otomasyonuna Hoşgeldiniz!")
+#     print("1- Kan Bağışı Yap")
+#     print("2- Kayıtlı Verileri Getir")
+#     print("3- Kayıtlı Bir Veriyi Sil")
+#     print("4- Sistemden Kan Al")
+#     print("0- Sistemden Çıkış Yap")
+#
+#     secim=int(input("Lütfen Yapmak Istediginiz Islemi Seciniz: "))
+#
+#     while(True):
+#         if (secim==1):
+#             Kayit()
+#             Sorular()
+#             secim = int(input("Yapmak istediğiniz başka bir işlem var ise seciniz:"))
+#         elif (secim==2):
+#             Kayitli_verileri_getir()
+#             Sorular()
+#             secim = int(input("Yapmak istediğiniz başka bir işlem var ise seciniz:"))
+#         if (secim==3):
+#             Kayitli_verileri_sil()
+#             Sorular()
+#             secim = int(input("Yapmak istediğiniz başka bir işlem var ise seciniz:"))
+#         if (secim==4):
+#             Kan_al()
+#             Sorular()
+#             secim = int(input("Yapmak istediğiniz başka bir işlem var ise seciniz:"))
+#         if (secim==0):
+#             break
+#     print("Sistemden çıkış yapıldı.")
+#
+
+# Ana_ekran()
