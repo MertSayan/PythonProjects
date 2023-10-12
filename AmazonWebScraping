@@ -1,0 +1,135 @@
+from bs4 import BeautifulSoup
+import requests
+import time
+import datetime
+import smtplib
+import csv
+from email.message import EmailMessage
+import ssl
+
+mail = input("Lütfen gmailinizi giriniz:")
+
+global price
+global check_price
+global title
+
+
+def Send_email():
+    with open("emailsifre0.txt", "r") as f:
+        password = f.read()
+
+    email_sender = "mertrutenyumsayan@gmail.com"
+    email_password = password
+    email_receiver = mail
+
+    subject = f"Takip etmemi istediğiniz {title} istediğiniz fiyatın altına düştü! Şimdi satın alma zamanı!"
+    body = (f"""
+    Değerli kullanıcı, beklediğin o zaman geldi. Şimdi istediğin {title} almak için şansın var. Bunu kaçırma!
+    """)
+
+    em = EmailMessage()
+    em["From"] = email_sender
+    em["To"] = email_receiver
+    em["Subject"] = subject
+    em.set_content(body)
+
+    context = ssl.create_default_context()
+
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as smtp:
+        smtp.login(email_sender, email_password)
+        smtp.sendmail(email_sender, email_receiver, em.as_string())
+
+
+def Send_email_negative():
+    global title
+    with open("emailsifre0.txt", "r") as f:
+        password = f.read()
+
+    email_sender = "mertrutenyumsayan@gmail.com"
+    email_password = password
+    email_receiver = mail
+
+    subject = f"Takip etmemi istediğiniz {title}, istenilen fiyatın altına henüz düşmedi"
+    body = (f"""
+    {title}, istenilen fiyatın altına düşmedi ama sakın morelini bozma yarın tekrar bildireceğim!
+    """)
+    em = EmailMessage()
+    em["From"] = email_sender
+    em["To"] = email_receiver
+    em["Subject"] = subject
+    em.set_content(body)
+
+    context = ssl.create_default_context()
+
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as smtp:
+        smtp.login(email_sender, email_password)
+        smtp.sendmail(email_sender, email_receiver, em.as_string())
+
+
+def Check_price():
+    global title
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"}
+
+    today = datetime.date.today()
+    with open("urls.txt", "r") as f:
+        url = f.readlines()
+
+    for ul in url:
+        URL = ul.split("price=")[0]
+        print(URL)
+        check_price = float(ul.split("price=")[1])
+        print(check_price)
+        page = requests.get(URL, headers=headers)
+        soup1 = BeautifulSoup(page.content, "html.parser")
+        title = soup1.find(id="productTitle").get_text().strip()
+        # price=soup1.find("span",attrs={"class":"a-price-whole"}).get_text().strip()
+        price = soup1.find("span", attrs={"class": "a-price-whole"})
+        if price is not None:
+            price = price.get_text().strip()[:-1]
+        else:
+            print(f"{title} adlı ürünün fiyatına erişilemedi")
+            price = "1000000"
+
+        data = [title, price, today]
+
+        with open("AmazonWebScrapperDataSet0.csv", "a+", newline="", encoding="UTF-8") as file:
+            writer = csv.writer(file)
+            writer.writerow(data)
+
+        if (float(price) < check_price):
+            Send_email()
+            print("Emailinize mesaj yollanmistir")
+        # else:
+        #     Send_email_negative()
+
+
+def Write_titles_to_csv():
+    header = ["Title", "Price", "Today"]
+    with open("AmazonWebScrapperDataSet0.csv", "w", newline="", encoding="UTF-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(header)
+
+
+def Read_count_from_file():
+    try:
+        with open("count0.txt", "r") as file:
+            return int(file.read().strip())
+    except FileNotFoundError:
+        return 0
+
+
+def Write_count_to_file(count):
+    with open("count0.txt", "w") as file:
+        file.write(str(count))
+
+
+if Read_count_from_file() < 1:
+    Write_titles_to_csv()
+    count = Read_count_from_file()
+    count += 1
+    Write_count_to_file(count)
+
+while True:
+    Check_price()
+    time.sleep(86400)
